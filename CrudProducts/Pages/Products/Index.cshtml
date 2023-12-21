@@ -1,0 +1,243 @@
+﻿@page "/Products/Index"
+@model CrudProducts.Pages.Products.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    /* Style pour le header */
+    .header {
+
+        color: #0c0807;padding: 20px;
+        text-align: center;
+        justify-content: space-between; /* Aligner les éléments sur la même ligne */
+        align-items: center;
+    }
+
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+    /* Style pour le bouton "Créer un nouveau produit" */
+    .create-button {
+        background-color: #e74c3c;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+        .create-button a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .create-button i {
+            margin-right: 5px;
+        }
+
+        .create-button:hover {
+            background-color: #c0392b;
+        }
+
+    /* Style pour le formulaire de filtrage */
+    .filter-form {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+    }
+
+    .form-row {
+        display: flex; /* Utilisation de Flexbox pour le formulaire */
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center; /* Aligner verticalement avec le header */
+    }
+
+    .form-group {
+        flex-basis: calc(20% - 10px);
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .filter-button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .filter-button:hover {
+            background-color: #2980b9;
+        }
+
+    .card-img {
+        width: 100px;
+        height: 100px;/* Hauteur souhaitée en pixels */
+        object-fit: cover; /* Pour conserver les proportions et couvrir la zone définie */
+    }
+
+
+</style>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link rel="stylesheet" href="~/css/styleFiltre.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Bienvenue sur notre collection de produits</h1>
+            <button class="create-button" asp-page="Create">
+                <a asp-page="Create">
+                    <i class="fas fa-plus"></i> Créer un nouveau produit
+                </a>
+            </button>
+        </div>
+    </header>
+    <main>
+        <form class="filter-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="prd">Nom du produit</label>
+                    <input type="text" id="prd" name="prd" asp-for="prd" />
+                </div>
+
+                <div class="form-group">
+                    <label for="minPrice">Prix supérieur</label>
+                    <input type="number" id="minPrice" name="minPrice" asp-for="minPrice" />
+                </div>
+
+                <div class="form-group">
+                    <label for="maxPrice">Prix inférieur</label>
+                    <input type="number" id="maxPrice" name="maxPrice" asp-for="maxPrice" />
+                </div>
+
+                <div class="form-group">
+                    <label for="selectedCategory">Catégorie</label>
+                    <select id="selectedCategory" name="selectedCategory" asp-for="selectedCategory" class="form-control">
+                        <option value="">Toutes les catégories</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id.ToString()">@category.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button class="filter-button" type="submit">Filtrer</button>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="card-columns">
+            @if (Model.Product != null && Model.Product.Any())
+            {
+                foreach (var item in Model.Product)
+                {
+                    <div class="card custom-card">
+                        <img src="@item.imageUrl" class="card-img img-fluid" alt="Product Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text">Price: @item.Price</p>
+                            <button class="btn btn-success addToCartBtn" data-product-id="@item.Id" data-product-price="@item.Price" data-product-name="@item.Name">Add to Cart</button>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">
+                                <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a>
+                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-info">Details</a>
+                                <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                            </small>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>pas de produit</p>
+            }
+        </div>
+
+
+
+
+
+
+</body>
+
+</html>
+
+
+@section Scripts
+    {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sélectionnez tous les boutons "Add to Cart"
+            const addToCartButtons = document.querySelectorAll('.addToCartBtn');
+
+            // Ajoutez un gestionnaire d'événements pour chaque bouton
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // Récupérez l'ID du produit à partir de l'attribut data
+                    const productId = this.getAttribute('data-product-id');
+                    const productName = button.dataset.productName;
+                    const productPrice = button.dataset.productPrice;
+
+
+                    // Ajoutez le produit au panier en utilisant Local Storage
+                    addToCart(productId, productName, productPrice);
+                });
+            });
+
+            // Fonction pour ajouter au panier
+            function addToCart(productId, productName, productPrice) {
+                // Obtenez le panier actuel depuis Local Storage (s'il y en a un)
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const existingProduct = cart.find(item => item.productId === productId);
+
+                if (existingProduct) {
+                    // Si le produit existe, augmentez la quantité de 1
+                    existingProduct.quantity += 1;
+                } else {
+                    // Si le produit n'existe pas, ajoutez-le avec une quantité de 1
+                    cart.push({ productId: productId, productName: productName, productPrice: productPrice, quantity: 1 });
+                }
+
+                // Enregistrez le panier mis à jour dans Local Storage
+                localStorage.setItem('cart', JSON.stringify(cart));
+
+                updateCartCount();
+
+                alert('Product added to cart!');
+            }
+
+        });
+    </script>
+}
+
